@@ -758,6 +758,7 @@ public class StreamingSyncImplementation : EventStream<StreamingSyncImplementati
                         }
 
                         logger.LogDebug("Caught exception when uploading. Upload will retry after a delay. Exception: {message}", ex.Message);
+                        await Task.Delay(5000); // 失败后等待， 要不然会导致快速循环，应用卡顿
                     }
                     finally
                     {

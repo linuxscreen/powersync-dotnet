@@ -178,7 +178,7 @@ public class ConnectionManager : EventStream<ConnectionManagerEvent>
         ConnectingTask ??= CheckedConnectInternal();
         // ConnectingTask = CheckedConnectInternal();
         await ConnectingTask;
-        if (ConnectingTask.IsCompleted) // 修复断开连接后重新连接失败
+        if (ConnectingTask != null && ConnectingTask.IsCompleted) // 修复断开连接后重新连接失败
         {
             ConnectingTask = null;
         }

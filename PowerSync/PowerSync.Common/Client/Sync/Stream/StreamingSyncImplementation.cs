@@ -312,6 +312,7 @@ public class StreamingSyncImplementation : EventStream<StreamingSyncImplementati
             });
         });
 
+        bool syncFailed = false;
         // This loops runs until [retry] is false or the abort signal is set to aborted.
         // Aborting the nestedCts will:
         // - Abort any pending fetch requests
@@ -332,6 +333,7 @@ public class StreamingSyncImplementation : EventStream<StreamingSyncImplementati
             }
             catch (Exception ex)
             {
+                syncFailed = true;
                 var exMessage = ex.Message;
                 if (ex.InnerException != null && (ex.InnerException is ObjectDisposedException || ex.InnerException is SocketException))
                 {
@@ -387,6 +389,19 @@ public class StreamingSyncImplementation : EventStream<StreamingSyncImplementati
                     {
                         await DelayRetry();
                     }
+                }
+                if (syncFailed)
+                {
+                    // try delay
+#if DEBUG
+                    await Task.Delay(5 * 1000, nestedCts.Token);
+#else
+                    await Task.Delay(3 * 60 * 1000, nestedCts.Token);
+#endif
+                }
+                else
+                {
+                    await Task.Delay(5 * 1000, nestedCts.Token);
                 }
             }
         }
